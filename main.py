@@ -10,55 +10,50 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
+from aiogram.fsm.storage.memory import MemoryStorage
 from os import getenv
 from dotenv import load_dotenv
 from typing import Union
-from subprocess import call
 from currency_converter import CurrencyConverter
 
 from commands import *
-from blockchains import Bitcoin, Toncoin, Blockchains
-# from markup import start_button, checker_button
+from database import *
+from blockchains import *
 
 load_dotenv(".env")
-
 API_TOKEN = getenv("API_KEY")
 bot = Bot(API_TOKEN, parse_mode=ParseMode.HTML)
-dp = Dispatcher()
+dp = Dispatcher(storage=MemoryStorage())
 ton = Toncoin()
 btc = Bitcoin()
 blockchains = Blockchains()
-cur = CurrencyConverter()
-latestUpdate = ton.toncoin_price_online()[0]
+currency = CurrencyConverter()
 
 
-async def check_rise_toncoin(_special_id: Union[int, str], _limit: Union[int, float]) -> None:
+def getCurrentTime():
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(time.time()))
+
+
+async def check_rise_toncoin(_special_id: Union[int, str], _limit: Union[int, float]):
     """Get notification to telegram if toncoin rise around limit context parameter percent after start a program
-    :param _special_id:
-    :param _limit: required parameter Union[int, float]
-    :return String
+    :param _special_id Union[int, str]
+    :param _limit Union[int, float]
+    :return None
     """
-    global latestUpdate
-    if type(_limit) == int:
-        _limit /= 100
-    _limit: float = 1 - _limit
     value = ton.toncoin_price_online()
-    percent = latestUpdate / value[0]
+    percent = db_get_last_value(_special_id) / value[0]
     if 0 < percent < _limit:
         await bot.send_message(
             chat_id=_special_id,
-            text=f"{hbold('RISE, TONCOIN RISE:')}\n\nValue: {hbold(value[0])} $ ({hbold(value[2])} ₽)\nActual: {value[1]}"
+            text=f"{hbold('RISE, TONCOIN RISE:')}\n\nValue: {hbold(value[0])} $ ({hbold(value[2])} ₽)\n"
+                 f"Actual: {value[1]}"
         )
-    latestUpdate = value[0]
+        db_edit_last_value(_special_id, value[0])
 
 
-run = True
-
-
-async def runToncoinChecker(limit: Union[int, float], timer: int, special_id: Union[int, str]) -> None:
-    schedule.every(timer).minutes.do(check_rise_toncoin, _limit=limit, _special_id=special_id)
+async def runToncoinChecker():
     try:
-        while run:
+        while True:
             await schedule.run_pending()
             await asyncio.sleep(1)
     except KeyboardInterrupt:
@@ -73,7 +68,7 @@ async def runToncoinChecker(limit: Union[int, float], timer: int, special_id: Un
 async def getBlockchainsValueHighAvg(message: Message) -> None:
     """
     This async function give to user information about blockchains who himself input in Telegram_Bot chat
-    :param message: Current message who user send to Telegram bot
+    :param message: current message who user send to Telegram bot
     :return: Serialized data from open API blockchains "Yobit"
     """
     tickers = message.text.split()[1::]
@@ -84,9 +79,9 @@ async def getBlockchainsValueHighAvg(message: Message) -> None:
     print(serialized)
     for ticker in tickers:
         data = serialized.get(ticker, {"error": "Not Found", "code": 404})
-        currency = ticker.split("_")[-1].upper()
-        await message.answer(f"""The high: {hbold(data['high'])} {currency}
-The low {hbold(data['low'])} {currency}
+        curr = ticker.split("_")[-1].upper()
+        await message.answer(f"""The high: {hbold(data['high'])} {curr}
+The low {hbold(data['low'])} {curr}
 Updated: {hbold(time.strftime("%d.%m.%Y %H:%M:%S", time.gmtime(data['updated'])))}""")
 
 
@@ -96,7 +91,8 @@ Updated: {hbold(time.strftime("%d.%m.%Y %H:%M:%S", time.gmtime(data['updated']))
     ignore_case=True
 ))
 async def getBitcoinValueAvg(message: Message):
-    await message.answer(f"The average: {hbold(btc.bitcoin_price_avg())} $"
+    await message.answer(f"{hbold('BITCOIN AVERAGE:')}\n"
+                         f"The high: {hbold(btc.bitcoin_price_avg())} $"
                          f"\nUpdated: {hbold(btc.updateTime)}")
 
 
@@ -106,7 +102,10 @@ async def getBitcoinValueAvg(message: Message):
     ignore_case=True
 ))
 async def getBitcoinValueOnline(message: Message):
-    await message.answer("developing")
+    r = btc.bitcoin_price_online()
+    await message.answer(f"{hbold('BITCOIN ONLINE:')}\n"
+                         f"Value: {hbold(r[0])} $ ({hbold(r[2])} ₽)"
+                         f"\nActual: {hbold(r[1])}")
 
 
 @dp.message(Command(
@@ -115,8 +114,9 @@ async def getBitcoinValueOnline(message: Message):
     ignore_case=True
 ))
 async def getBitcoinValueHigh(message: Message):
-    await message.answer(f"""The high: {hbold(btc.bitcoin_price_high())} $
-    Updated: {hbold(btc.updateTime)}""")
+    await message.answer(f"{hbold('BITCOIN HIGH:')}\n"
+                         f"The high: {hbold(btc.bitcoin_price_high())} $"
+                         f"\nUpdated: {hbold(btc.updateTime)}")
 
 
 @dp.message(Command(
@@ -126,7 +126,9 @@ async def getBitcoinValueHigh(message: Message):
 ))
 async def getToncoinValueOnline(message: Message):
     r = ton.toncoin_price_online()
-    await message.answer(f"{hbold('TONCOIN ONLINE:')}\n\nValue: {hbold(r[0])} $ ({hbold(r[2])} ₽)\nActual: {r[1]}")
+    await message.answer(f"{hbold('TONCOIN ONLINE:')}\n"
+                         f"Value: {hbold(r[0])} $ ({hbold(r[2])} ₽)"
+                         f"\nActual: {hbold(r[1])}")
 
 
 @dp.message(Command(
@@ -135,8 +137,8 @@ async def getToncoinValueOnline(message: Message):
     ignore_case=True
 ))
 async def getToncoinValueAverage(message: Message):
-    await message.answer(f"{hbold('TONCOIN AVERAGE:')}"
-                         f"\nValue: {hbold(ton.toncoin_price_avg())} $"
+    await message.answer(f"{hbold('TONCOIN AVERAGE:')}\n"
+                         f"Value: {hbold(ton.toncoin_price_avg())} $"
                          f"\nActual: {hbold(ton.updateTime)}")
 
 
@@ -146,8 +148,8 @@ async def getToncoinValueAverage(message: Message):
     ignore_case=True
 ))
 async def getToncoinValueHigh(message: Message):
-    await message.answer(f"{hbold('TONCOIN HIGH:')}"
-                         f"\nValue: {hbold(ton.toncoin_price_high())}$"
+    await message.answer(f"{hbold('TONCOIN HIGH:')}\n"
+                         f"Value: {hbold(ton.toncoin_price_high())}$"
                          f"\nActual: {hbold(ton.updateTime)}")
 
 
@@ -158,80 +160,142 @@ async def getToncoinValueHigh(message: Message):
 ))
 async def exchangeValuta(message: Message):
     if message.text.split()[1] != "":
-        await message.answer(str(cur.convert(int(message.text.split()[1]), "USD", "RUB")))
+        await message.answer(str(currency.convert(int(message.text.split()[1]), "USD", "EUR")))
+
+
+def cancel_checker(identifier: Union[str, int]) -> bool:
+    if db_get_user_state(identifier):
+        for job in schedule.jobs:
+            if str(identifier) in job.tags:
+                schedule.cancel_job(job)
+                return True
+    return False
+
+
+def set_parameters(params: Union[list, tuple]) -> tuple:
+    try:
+        limit, timer = params[1], int(params[2])
+    except IndexError:
+        limit, timer = '5', 5
+    if ',' in limit:
+        limit.replace(',', '.')
+    limit = 1 - (float(limit) if '.' in limit else int(limit) / 100)
+    return limit, timer
 
 
 @dp.message(Command(
-    commands=("change_params", 'params', 'change_parameters', 'parameters'),
+    commands=stop_checker,
+    prefix='/',
+    ignore_case=True
+))
+async def stopChecker(message: Message):
+    if cancel_checker(message.chat.id):
+        logging.info(f'AUTOCHECKER: STOP JOB (TIME: {getCurrentTime()}, ID: {message.chat.id})')
+        db_edit_user_state(message.chat.id, False)
+        await message.answer(f"Checker {hbold('OFF')}")
+        return
+    await message.answer(f"Checker {hbold('isn`t run')}")
+
+
+@dp.message(Command(
+    commands=change_parameters,
     prefix='/',
     ignore_case=True
 ))
 async def changeParameters(message: Message):
-    global run
-    run = False
-    params = message.text.split()
-    try:
-        limit, timer = params[1], int(params[2])
-    except IndexError:
-        limit, timer = '11', 5
-    if ',' in limit:
-        limit.replace(',', '.')
-    limit = float(limit) if '.' in limit else int(limit)
-    asyncio.create_task(runToncoinChecker(limit=limit, special_id=message.chat.id, timer=timer))
-    await message.answer(f"Checker with new parameters {hbold('launched')}")
+    cancel_checker(message.chat.id)
+    limit, timer = set_parameters(message.text.split())
+    await message.answer(f'Checker with new parameters {hbold("launched")}\n'
+                         f'Parameters: {hbold(limit)}% and {hbold(timer)} minutes')
+    logging.info(f'AUTOCHECKER: RUN WITH NEW PARAMETERS(_limit={limit}, _timer={timer}) ({getCurrentTime()})')
+    schedule.every(timer).minutes.do(
+        check_rise_toncoin,
+        _limit=limit,
+        _special_id=message.chat.id
+    ).tag(str(message.chat.id))
+    db_edit_user_state(message.chat.id, True)
+    db_edit_last_value(message.chat.id, ton.toncoin_price_online()[0])
 
 
 @dp.message(Command(
-    commands='stop',
+    commands=run_checker,
     prefix='/',
     ignore_case=True
 ))
-async def stopCheckerCoin(message: Message):
-    global run
-    run = False
-    await message.answer(f"Checker the Toncoin {hbold('OFF')}")
+async def runChecker(message: Message):
+    if db_get_user_state(message.chat.id):
+        await message.answer("Can't launch new job for checker...\n" +
+                             hbold(f"Please shutdown the current job or use:\n"
+                                   f"/parameters [limit] [timer]"))
+        return
+    limit, timer = set_parameters(message.text.split())
+    await message.answer(f'Checker is {hbold("launched")}'
+                         f'\nParameters: {hbold(limit)}% and {hbold(timer)} minutes')
+    logging.info(f'AUTOCHECKER: RUN(_limit={limit}, _timer={timer}) ({getCurrentTime()})')
+    schedule.every(timer).minutes.do(
+        check_rise_toncoin,
+        _limit=limit,
+        _special_id=message.chat.id
+    ).tag(str(message.chat.id))
+    db_edit_last_value(message.chat.id, ton.toncoin_price_online()[0])
+    db_edit_user_state(message.chat.id, True)
 
 
 @dp.message(Command(
-    commands='shutdown',
-    prefix='/',
+    commands='getCurrentJobs',
+    prefix='_',
     ignore_case=True
 ))
-async def shutdownComputer(message: Message):
-    call(f'shutdown -s -t {message.text.split()[1]}')
+async def getCurrentJobs(message: Message):
+    if message.chat.id in [1491418466, 5720816788]:
+        await message.answer(f"Count of launched the checker: {len(schedule.jobs)}")
+        return
+    await message.answer('You don`t have enough rights to use this command')
+
+
+@dp.message(Command(
+    commands='stopMainTask',
+    prefix='_',
+    ignore_case=True
+))
+async def stopTask(message: Message):
+    if message.chat.id in [1491418466, 5720816788]:
+        for task in asyncio.all_tasks(asyncio.get_event_loop()):
+            if task.get_name() == "MAIN":
+                task.cancel()
+                await message.answer("Done! Delete thread")
+        return
+    await message.answer('You don`t have enough rights to use this command')
 
 
 @dp.message(CommandStart())
 async def onStart(message: Message):
-    params = message.text.split()
-    try:
-        limit, timer = params[1], int(params[2])
-    except IndexError:
-        limit, timer = '11', 5
-    if ',' in limit:
-        limit.replace(',', '.')
-    limit = float(limit) if '.' in limit else int(limit)
     await message.answer(f"Hello, {hbold(message.from_user.full_name)}!\n"
                          "Now you can get notifications from me about rise the toncoin crypt...\n"
-                         f"Your chat id: {hbold(message.chat.id)}")
-    asyncio.create_task(runToncoinChecker(limit=limit, special_id=message.chat.id, timer=timer))
+                         f"Your chat id: {hbold(message.chat.id)}\n"
+                         f"/run for run checker toncoin crypt with next params: {hbold('5%')}"
+                         f" rise and {hbold('5 minutes')} timer")
+    db_create_new_user(message.chat.id)
 
 
-async def runBot():
-    await dp.start_polling(bot)
+def runBot():
+    try:
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            loop.create_task(runToncoinChecker(), name='MAIN')
+            loop.run_until_complete(dp.start_polling(bot))
+        else:
+            nest_asyncio.apply(loop)
+            loop.create_task(runToncoinChecker(), name='MAIN')
+            asyncio.run(dp.start_polling(bot))
+    except KeyboardInterrupt:
+        logging.warning("Finished")
 
 
 if __name__ == '__main__':
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())  # for Windows systems
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    try:
-        try:
-            first_loop = asyncio.get_event_loop()
-        except RuntimeError:
-            first_loop = asyncio.new_event_loop()
-            first_loop.run_until_complete(runBot())
-        else:
-            nest_asyncio.apply(first_loop)
-            asyncio.run(runBot())
-    except KeyboardInterrupt:
-        logging.warning("Finished")
+    runBot()

@@ -35,3 +35,15 @@ timer_cmd = (
 exchange_valuta = (
     "change", "exchange", 'valuta', 'exchange_valuta', 'ex_valuta', 'ex'
 )
+
+change_parameters = (
+    "change_params", 'params', 'change_parameters', 'parameters'
+)
+
+stop_checker = (
+    "stop", "stop_checker", "final", 'shutdown', 'off', 'off_checker'
+)
+
+run_checker = (
+    'run', 'runChecker', 'run_checker', 'checker'
+)
