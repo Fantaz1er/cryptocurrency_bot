@@ -7,7 +7,7 @@ from typing import Union, Optional
 
 __all__ = [
     "db_add_new_administrator", "db_check_is_admin", "db_get_last_admin_activity", "db_change_last_activity",
-    "db_get_admins_list", "db_change_rang_admin",
+    "db_get_admins_list", "db_change_admin_rang"
 ]
 ADMIN_ID = Union[str, int]
 
@@ -25,7 +25,7 @@ def create_database():
         '''CREATE TABLE `admins` (
             `id` INTEGER NOT NULL UNIQUE,
             `admin_id` INTEGER NOT NULL UNIQUE,
-            `rang` INTEGER default 6,
+            `rang` INTEGER default 1,
             `lastActivity` INTEGER,
             PRIMARY KEY(`id` AUTOINCREMENT)
         );'''
@@ -100,13 +100,5 @@ def db_change_admin_rang(admin_id: ADMIN_ID, rang: Optional[int] = None) -> None
     conn = init()
     cursor = conn.cursor()
     cursor.execute("UPDATE `admins` SET rang=? WHERE admin_id=?", (rang, admin_id,))
-    conn.commit()
-    conn.close()
-
-
-def db_change_rang_admin(admin_id: ADMIN_ID, value: Optional[int]) -> None:
-    conn = init()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE `admins` SET rang=? WHERE admin_id=?", (value, admin_id,))
     conn.commit()
     conn.close()

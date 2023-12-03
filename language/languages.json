@@ -7,10 +7,16 @@
     },
     "ga_admin":
     {
+      "myself_error": "Нельзя проводить операции над самим собой!",
+      "isUpper": "Вы повысили администратора %s на ранг %s",
+      "isAdminError": "Вы неправильно ввели ID пользователя",
+      "isAdminNotExist": "Этот пользователь (%s) не является администратором",
+      "isAdmin": "Этот пользователь (%s) является администратором. Его ранг: %s",
       "not_allowed": "Вы не являетесь главным администратором"
     },
     "admin":
     {
+      "myself_error": "Нельзя проводить операции над самим собой!",
       "createTask": "Вы создали задачу",
       "code_red": "Вы отменили действие",
       "request_green_code": "Хотите ли Вы остановить процесс проверки у всех пользователей?",
@@ -44,10 +50,16 @@
     },
     "ga_admin":
     {
+      "myself_error": "Must not do actions with myself",
+      "isUpper": "You upper the admin #%s on level %s",
+      "isAdminError": "You input ID user incorrect",
+      "isAdminNotExist": "This user (%s) isn't administrator",
+      "isAdmin": "This user (%s) is admin. Him rang: %s",
       "not_allowed": "You is not GA admin"
     },
     "admin":
     {
+      "myself_error": "Must not do actions with myself",
       "createTask": "You create a task",
       "code_red": "You cancel the action",
       "request_green_code": "Do you want to stop all process checkers for everyone?",
