@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import httpx
 import asyncio
 import time
@@ -5,9 +6,9 @@ import time
 from nest_asyncio import apply
 from random import choice
 from string import ascii_lowercase, digits
-from typing import Any, Union
+from typing import Any, Union, Optional
 
-__all__ = ["Bitcoin", "Toncoin", "Blockchains"]
+__all__ = ["AsyncBlockchainsRequest", "async_run"]
 
 HEADERS: dict = {
     'authority': 'api.coinmarketcap.com',
@@ -27,7 +28,6 @@ HEADERS: dict = {
                   'Safari/537.36',
     'x-request-id': '69c74736249c4d3fbb59b279556793e5',  # not const value
 }
-
 RANDOM_LETTERS: str = ascii_lowercase + digits
 
 
@@ -42,17 +42,21 @@ def async_run(task, *args) -> Any:
         return asyncio.run(task(args))
 
 
-class AsyncToncoinHandler:
+class AsyncBlockchainsRequest:
     def __init__(self):
         self.url_coinmarket = 'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/detail/chart'
         self.url_yobit = "https://yobit.net/api/3/ticker/toncoin_usd"
+        self._bitcoin_url_yobit = "https://yobit.net/api/3/ticker/btc_usd"
+        self._bitcoin_url_coinmarket = 'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/detail/chart'
+        self._blockchains_usd = "https://yobit.net/api/3/ticker/"
+        self._blockchains_coinmarket = 'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/detail/chart'
 
     @property
     def updateHeaders(self):
         HEADERS['x-request-id'] = ''.join(choice(RANDOM_LETTERS) for _ in range(32))
         return HEADERS
 
-    async def _get_toncoin_usd_online(self, *args) -> tuple:
+    async def _get_toncoin_usd_online(self, *args) -> Optional[tuple]:
         ctime = round(time.time()) - 1
         async with httpx.AsyncClient() as client:
             r = await client.get(
@@ -66,7 +70,7 @@ class AsyncToncoinHandler:
                 time.strftime("%Y-%m-%d %H:%M:%S %z", time.gmtime(int(idx_last))),
                 round(res[idx_last]['c'][0], 2))
 
-    async def _get_toncoin_usd_yobit(self, *args) -> Union[dict, None]:
+    async def _get_toncoin_usd_yobit(self, *args) -> Optional[dict]:
         async with httpx.AsyncClient() as client:
             r = await client.get(self.url_yobit, )
         res = r.json()['toncoin_usd']
@@ -76,42 +80,7 @@ class AsyncToncoinHandler:
         except KeyError:
             return None
 
-
-class Toncoin(AsyncToncoinHandler):
-    def __init__(self):
-        super().__init__()
-        self._update_time: Union[str, None] = None
-
-    def toncoin_price_online(self) -> tuple:
-        return async_run(self._get_toncoin_usd_online)
-
-    @property
-    def updateTime(self) -> str:
-        """Getter last updated the course of coins"""
-        return self._update_time
-
-    def toncoin_price_high(self) -> int:
-        res = async_run(self._get_toncoin_usd_yobit)
-        self._update_time = res['update']
-        return res['high']
-
-    def toncoin_price_avg(self) -> int:
-        res = async_run(self._get_toncoin_usd_yobit)
-        self._update_time = res['update']
-        return res['avg']
-
-
-class AsyncBitcoinHandler:
-    def __init__(self):
-        self._bitcoin_url_yobit = "https://yobit.net/api/3/ticker/btc_usd"
-        self._bitcoin_url_coinmarket = 'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/detail/chart'
-
-    @property
-    def updateHeaders(self):
-        HEADERS['x-request-id'] = ''.join(choice(RANDOM_LETTERS) for _ in range(32))
-        return HEADERS
-
-    async def _get_bitcoin_usd_online(self, *args) -> tuple:
+    async def _get_bitcoin_usd_online(self, *args) -> Optional[tuple]:
         ctime = round(time.time()) - 1
         async with httpx.AsyncClient() as client:
             r = await client.get(
@@ -125,49 +94,14 @@ class AsyncBitcoinHandler:
                 time.strftime("%Y-%m-%d %H:%M:%S %z", time.gmtime(int(idx_last))),
                 round(res[idx_last]['c'][0], 2))
 
-    async def _get_bitcoin_usd_yobit(self, *args) -> dict:
+    async def _get_bitcoin_usd_yobit(self, *args) -> Optional[dict]:
         async with httpx.AsyncClient() as client:
             r = await client.get(self._bitcoin_url_yobit)
             res = r.json()['btc_usd']
         return {"high": res['high'], "avg": res['avg'],
                 "update": time.strftime("%d.%m.%Y %H:%M:%S", time.gmtime(int(res['updated'])))}
 
-
-class Bitcoin(AsyncBitcoinHandler):
-    def __init__(self):
-        super().__init__()
-        self._update_time: Union[str, None] = None
-
-    @property
-    def updateTime(self) -> str:
-        """Getter attribute last update the coin"""
-        return self._update_time
-
-    def bitcoin_price_online(self) -> tuple:
-        return async_run(self._get_bitcoin_usd_online)
-
-    def bitcoin_price_high(self) -> int:
-        res = async_run(self._get_bitcoin_usd_yobit)
-        self._update_time = res['update']
-        return res['high']
-
-    def bitcoin_price_avg(self) -> int:
-        res = async_run(self._get_bitcoin_usd_yobit)
-        self._update_time = res['update']
-        return res['avg']
-
-
-class AsyncBlockchainsHandler:
-    def __init__(self):
-        self._blockchains_usd = "https://yobit.net/api/3/ticker/"
-        self._blockchains_coinmarket = 'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/detail/chart'
-
-    @property
-    def updateHeaders(self):
-        HEADERS['x-request-id'] = ''.join(choice(RANDOM_LETTERS) for _ in range(32))
-        return HEADERS
-
-    async def _get_blockchains_usd_online(self, coinIds: Union[list[str], list[int]]) -> dict:
+    async def _get_blockchains_usd_online(self, coinIds: Union[list[str], list[int]]) -> Optional[dict]:
         ctime = round(time.time()) - 1
         result: dict = {}
         for coinId in coinIds:
@@ -186,17 +120,9 @@ class AsyncBlockchainsHandler:
             )}
         return result
 
-    async def _get_blockchains_usd_yobit(self, tickers) -> Union[dict, None]:
+    async def _get_blockchains_usd_yobit(self, tickers) -> Optional[dict]:
         tickers = list(*tickers)
         async with httpx.AsyncClient() as client:
             response = await client.get(self._blockchains_usd + "_".join(e for e in list(tickers)))
             r = response.json()
         return {e: r.get(e, {"error": "not found", "code": 404}) for e in tickers}
-
-
-class Blockchains(AsyncBlockchainsHandler):
-    def __init__(self):
-        super().__init__()
-
-    def blockchains_price(self, tickers) -> Union[dict, None]:
-        return async_run(self._get_blockchains_usd_yobit, tickers)

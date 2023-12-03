@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 btc_online_cmd = (
     'get_btc_usd', 'btc_usd', 'bitcoin', 'coin_btc_usd', 'btc', 'bitcoin'
 )
@@ -30,10 +31,6 @@ toncoin_avg_cmd = (
 
 timer_cmd = (
     'timer', 'time'
-)
-
-exchange_valuta = (
-    "change", "exchange", 'valuta', 'exchange_valuta', 'ex_valuta', 'ex'
 )
 
 change_parameters = (

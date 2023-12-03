@@ -1,0 +1,76 @@
+{
+  "ru":
+  {
+    "superuser":
+    {
+      "not_allowed": "Вы не являетесь суперюзером (админом первого уровня)"
+    },
+    "ga_admin":
+    {
+      "not_allowed": "Вы не являетесь главным администратором"
+    },
+    "admin":
+    {
+      "createTask": "Вы создали задачу",
+      "code_red": "Вы отменили действие",
+      "request_green_code": "Хотите ли Вы остановить процесс проверки у всех пользователей?",
+      "delete_user_schedule_error": "Этот процесс уже запущен",
+      "delete_user_schedule": "Проверка на активность пользователя включена",
+      "unknown_user_id": "Вы не ввели ID пользователя или ID не находится в базе данных",
+      "not_find_checker": "Не удалось найти запущенных процессов по имени 'MAIN'!",
+      "get_count_checkers": "Число запущенных проверок: %s",
+      "delete_user": "Вы удалили пользователя из базы данных",
+      "stop_checker": "Отлично! Вы остановили задачу checker-а у всех пользователей!",
+      "delete_user_error": "Не удалось удалить пользователя из базы данных (состояние проверки: ИСТИНА)",
+      "lastActivity": "Вы остановили проверку активности пользователей, которая намечена на 00:00",
+      "lastActivity_error": "Не получилось остановить проверку активности пользователей. Может быть, Вы уже отключили её?",
+      "not_allowed": "У Вас недостаточно прав для пользования этой командой"
+    },
+    "ban": "Ваш аккаунт был удален из базы данных за долгий неактив. Пожалуйста, запустите бота заново (/start), чтобы его активировать",
+    "category":
+            [
+              "Выберите криптовалюту, чтобы получать уведомления о нужной категории"
+            ],
+    "start":
+            [
+              "Привет, %s!\nТеперь ты можешь получать уведомления от меня о повышении %s криптовалюты\nТвой чат-ид: %s\nВключи проверку командой /run со следующими параметрами: %s % и таймер на %s минут"
+            ]
+  },
+  "en":
+  {
+    "superuser":
+    {
+      "not_allowed": "You is not superuser (admin of first level)"
+    },
+    "ga_admin":
+    {
+      "not_allowed": "You is not GA admin"
+    },
+    "admin":
+    {
+      "createTask": "You create a task",
+      "code_red": "You cancel the action",
+      "request_green_code": "Do you want to stop all process checkers for everyone?",
+      "delete_user_schedule_error": "This process has already been started",
+      "delete_user_schedule": "Check for activity user enable now",
+      "unknown_user_id": "Not information abot ID",
+      "not_find_checker": "Not find tasks with name: 'MAIN'",
+      "get_count_checkers": "Count of launched the checker: %s",
+      "stop_checker": "Done! Delete thread",
+      "delete_user": "User is deleted from history of the bot",
+      "delete_user_error": "User use the bot (STATE IS TRUE)",
+      "lastActivity": "You stop the checker for last activity user that is set for midnight",
+      "lastActivity_error": "Not found this job. May be you delete it already?",
+      "not_allowed": "You don`t have enough rights to use this command"
+    },
+    "ban":
+            "Your account has been deleted from the database for a long period of inactivity. Please restart the bot (/start) to activate it",
+    "category": [
+      "Choice the cryptocurrency for get notifications about needed category"
+    ],
+    "start":
+            [
+              "Hello, %s!\nNow you can get notifications from me about rise the %s cryptocurrency...\nYour chat id: %s\n/run for checker %s cryptocurrency with next parameters: %s % rise and %s minutes timer"
+            ]
+  }
+}
