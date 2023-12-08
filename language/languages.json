@@ -16,6 +16,8 @@
     },
     "admin":
     {
+      "cancel_jobs": "Вы остановили все работы!",
+      "cancel_jobs_error": "Произошла ошибка при остановке работы",
       "myself_error": "Нельзя проводить операции над самим собой!",
       "createTask": "Вы создали задачу",
       "code_red": "Вы отменили действие",
@@ -25,13 +27,14 @@
       "unknown_user_id": "Вы не ввели ID пользователя или ID не находится в базе данных",
       "not_find_checker": "Не удалось найти запущенных процессов по имени 'MAIN'!",
       "get_count_checkers": "Число запущенных проверок: %s",
-      "delete_user": "Вы удалили пользователя из базы данных",
+      "delete_user": "Вы удалили пользователя %s из базы данных",
       "stop_checker": "Отлично! Вы остановили задачу checker-а у всех пользователей!",
       "delete_user_error": "Не удалось удалить пользователя из базы данных (состояние проверки: ИСТИНА)",
       "lastActivity": "Вы остановили проверку активности пользователей, которая намечена на 00:00",
       "lastActivity_error": "Не получилось остановить проверку активности пользователей. Может быть, Вы уже отключили её?",
       "not_allowed": "У Вас недостаточно прав для пользования этой командой"
     },
+    "stopJob": "Ваша работа (checker) была остановлена. Извините за тех. неполадки",
     "ban": "Ваш аккаунт был удален из базы данных за долгий неактив. Пожалуйста, запустите бота заново (/start), чтобы его активировать",
     "category":
             [
@@ -59,6 +62,8 @@
     },
     "admin":
     {
+      "cancel_jobs": "You stop all jobs",
+      "cancel_jobs_error": "Error in stop jobs",
       "myself_error": "Must not do actions with myself",
       "createTask": "You create a task",
       "code_red": "You cancel the action",
@@ -69,14 +74,14 @@
       "not_find_checker": "Not find tasks with name: 'MAIN'",
       "get_count_checkers": "Count of launched the checker: %s",
       "stop_checker": "Done! Delete thread",
-      "delete_user": "User is deleted from history of the bot",
+      "delete_user": "User %s is deleted from history of the bot",
       "delete_user_error": "User use the bot (STATE IS TRUE)",
       "lastActivity": "You stop the checker for last activity user that is set for midnight",
       "lastActivity_error": "Not found this job. May be you delete it already?",
       "not_allowed": "You don`t have enough rights to use this command"
     },
-    "ban":
-            "Your account has been deleted from the database for a long period of inactivity. Please restart the bot (/start) to activate it",
+    "stopJob": "Your job has been stopped, sorry for the technical problems",
+    "ban": "Your account has been deleted from the database for a long period of inactivity. Please restart the bot (/start) to activate it",
     "category": [
       "Choice the cryptocurrency for get notifications about needed category"
     ],

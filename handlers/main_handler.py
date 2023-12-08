@@ -1,22 +1,19 @@
 # -*- coding: utf-8 -*-
-import logging
-import aioschedule as schedule
 import asyncio
-
-from aiogram import Router
-from aiogram.types import Message, CallbackQuery
-from aiogram.filters import Command, CommandStart
-from aiogram.utils.markdown import hbold
+import logging
 from time import time, gmtime, strftime
 
-from markups.markup import start_kb
-from handlers.commands import *
+import aioschedule as schedule
+from aiogram import Router
+from aiogram.filters import Command, CommandStart
+from aiogram.types import Message, CallbackQuery
+from aiogram.utils.markdown import hbold
+
 from db.userbase import *
-from scripts.notifications import cancel_checker, getCurrentTime, set_parameters, check_rise_toncoin, runCheckers
-from scripts.blockchains import Blockchains
+from handlers.commands import *
+from markups.markup import start_kb
+from scripts.notifications import *
 
-
-coins = Blockchains()
 router = Router(name="main")
 
 
@@ -123,7 +120,7 @@ async def getToncoinValueHigh(message: Message):
 ))
 async def stopChecker(message: Message):
     if await cancel_checker(message.chat.id):
-        logging.info(f'AUTOCHECKER: STOP JOB (TIME: {getCurrentTime()}, ID: {message.chat.id})')
+        logging.info(f'AUTOCHECKER: STOP JOB (TIME: {get_current_time()}, ID: {message.chat.id})')
         db_edit_user_state(message.chat.id, False)
         await message.answer(f"Checker {hbold('OFF')}")
         return
@@ -140,7 +137,7 @@ async def changeParameters(message: Message):
     limit, timer = await set_parameters(message.text.split())
     await message.answer(f'Checker with new parameters {hbold("launched")}\n'
                          f'Parameters: {hbold(limit)}% and {hbold(timer)} minutes')
-    logging.info(f'AUTOCHECKER: RUN WITH NEW PARAMETERS(_limit={limit}, _timer={timer}) ({getCurrentTime()})')
+    logging.info(f'AUTOCHECKER: RUN WITH NEW PARAMETERS(_limit={limit}, _timer={timer}) ({get_current_time()})')
     schedule.every(timer).minutes.do(
         check_rise_toncoin,
         _limit=limit,
@@ -166,7 +163,7 @@ async def runChecker(message: Message):
     limit, timer = await set_parameters(message.text.split())
     await message.answer(f'Checker is {hbold("launched")}'
                          f'\nParameters: {hbold(limit)}% and {hbold(timer)} minutes')
-    logging.info(f'AUTOCHECKER: RUN(_limit={limit}, _timer={timer}) ({getCurrentTime()})')
+    logging.info(f'AUTOCHECKER: RUN(_limit={limit}, _timer={timer}) ({get_current_time()})')
     schedule.every(timer).minutes.do(
         check_rise_toncoin,
         _limit=limit,
