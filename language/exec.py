@@ -2,12 +2,16 @@
 from json import load
 from typing import Optional, Union
 
-from db.userbase import db_get_language_code
+from cryptocurrency_bot.db.userbase import db_get_language_code
 
-__all__ = ["get_admin_answers", "get_ga_admin_answers", "get_user_functional_answers"]
+__all__ = ["get_superuser_answers", "get_admin_answers", "get_ga_admin_answers", "get_user_functional_answers"]
 
 with open('./language/languages.json', "r", encoding="UTF-8") as language_init:
     languages = load(language_init)
+
+
+async def get_superuser_answers(superuser_id: Optional[int]) -> Optional[dict]:
+    return languages[db_get_language_code(superuser_id)]["superuser"]
 
 
 async def get_admin_answers(admin_id: Optional[int]) -> Optional[dict]:

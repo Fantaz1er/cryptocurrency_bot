@@ -12,12 +12,13 @@
       "isAdminError": "Вы неправильно ввели ID пользователя",
       "isAdminNotExist": "Этот пользователь (%s) не является администратором",
       "isAdmin": "Этот пользователь (%s) является администратором. Его ранг: %s",
+      "leaveAdmin": "Администратор %s был удалён по причине: %s",
       "not_allowed": "Вы не являетесь главным администратором"
     },
     "admin":
     {
       "cancel_jobs": "Вы остановили все работы!",
-      "cancel_jobs_error": "Произошла ошибка при остановке работы",
+      "cancel_jobs_error": "Нет работы. Нечего останавливать!",
       "myself_error": "Нельзя проводить операции над самим собой!",
       "createTask": "Вы создали задачу",
       "code_red": "Вы отменили действие",
@@ -29,7 +30,6 @@
       "get_count_checkers": "Число запущенных проверок: %s",
       "delete_user": "Вы удалили пользователя %s из базы данных",
       "stop_checker": "Отлично! Вы остановили задачу checker-а у всех пользователей!",
-      "delete_user_error": "Не удалось удалить пользователя из базы данных (состояние проверки: ИСТИНА)",
       "lastActivity": "Вы остановили проверку активности пользователей, которая намечена на 00:00",
       "lastActivity_error": "Не получилось остановить проверку активности пользователей. Может быть, Вы уже отключили её?",
       "not_allowed": "У Вас недостаточно прав для пользования этой командой"
@@ -58,12 +58,13 @@
       "isAdminError": "You input ID user incorrect",
       "isAdminNotExist": "This user (%s) isn't administrator",
       "isAdmin": "This user (%s) is admin. Him rang: %s",
+      "leaveAdmin": "Admin %s has been deleted for a reason: %s",
       "not_allowed": "You is not GA admin"
     },
     "admin":
     {
       "cancel_jobs": "You stop all jobs",
-      "cancel_jobs_error": "Error in stop jobs",
+      "cancel_jobs_error": "There are not active jobs. Nothing to stop",
       "myself_error": "Must not do actions with myself",
       "createTask": "You create a task",
       "code_red": "You cancel the action",
@@ -75,7 +76,6 @@
       "get_count_checkers": "Count of launched the checker: %s",
       "stop_checker": "Done! Delete thread",
       "delete_user": "User %s is deleted from history of the bot",
-      "delete_user_error": "User use the bot (STATE IS TRUE)",
       "lastActivity": "You stop the checker for last activity user that is set for midnight",
       "lastActivity_error": "Not found this job. May be you delete it already?",
       "not_allowed": "You don`t have enough rights to use this command"

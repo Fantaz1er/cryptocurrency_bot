@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import time
-from typing import Union
+from typing import Union, Optional
 
 import aioschedule as schedule
+from cryptocurrency_bot.db.userbase import *
 
-from bot import bot
-from db.userbase import *
-from exceptions.exceptions import *
-from language.exec import get_user_functional_answers
-from scripts.blockchains import Blockchains
+from cryptocurrency_bot.bot import bot
+from cryptocurrency_bot.exceptions.exceptions import *
+from cryptocurrency_bot.language.exec import get_user_functional_answers
+from cryptocurrency_bot.scripts.blockchains import Blockchains
 
 coins = Blockchains()
 

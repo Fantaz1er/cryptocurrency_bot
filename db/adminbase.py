@@ -3,13 +3,13 @@ import sqlite3
 import sys
 
 from pathlib import Path
-from typing import Union, Optional
+from typing import Optional, Union
 
 __all__ = [
     "db_add_new_administrator", "db_check_is_admin", "db_get_last_admin_activity", "db_change_last_activity",
-    "db_get_admins_list", "db_change_admin_rang"
+    "db_get_admins_list", "db_change_admin_rang", "db_leave_admin",
 ]
-ADMIN_ID = Union[str, int]
+ADMIN_ID = Optional[Union[str, int]]
 
 
 def init() -> sqlite3.Connection:
@@ -46,11 +46,11 @@ finally:
     del db
 
 
-def db_add_new_administrator(user_id: ADMIN_ID):
+def db_add_new_administrator(admin_id: ADMIN_ID, rang: Optional[int] = 1) -> None:
     conn = init()
     cursor = conn.cursor()
     try:
-        cursor.execute("INSERT INTO admins(admin_id) VALUES (?)", (user_id,))
+        cursor.execute("INSERT INTO admins(admin_id, rang) VALUES (?, ?)", (admin_id, rang))
     except sqlite3.IntegrityError:
         pass
     finally:
@@ -58,7 +58,7 @@ def db_add_new_administrator(user_id: ADMIN_ID):
         conn.close()
 
 
-def db_check_is_admin(admin_id: ADMIN_ID) -> Union[int, bool]:
+def db_check_is_admin(admin_id: ADMIN_ID) -> Optional[Union[str, int]]:
     """Check user on admin status. If user in admin table return him rang else return False"""
     conn = init()
     cursor = conn.cursor()
@@ -100,5 +100,13 @@ def db_change_admin_rang(admin_id: ADMIN_ID, rang: Optional[int] = None) -> None
     conn = init()
     cursor = conn.cursor()
     cursor.execute("UPDATE `admins` SET rang=? WHERE admin_id=?", (rang, admin_id,))
+    conn.commit()
+    conn.close()
+
+
+def db_leave_admin(admin_id: ADMIN_ID) -> None:
+    conn = init()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM `admins` WHERE admin_id=?", (admin_id,))
     conn.commit()
     conn.close()

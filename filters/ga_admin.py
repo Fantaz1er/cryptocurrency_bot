@@ -3,8 +3,8 @@ from typing import Optional
 from aiogram.filters import Filter
 from aiogram.types import Message
 
-from db.adminbase import db_check_is_admin
-from language.exec import get_ga_admin_answers
+from cryptocurrency_bot.db.adminbase import db_check_is_admin
+from cryptocurrency_bot.language.exec import get_ga_admin_answers
 
 
 class IsGAAdmin(Filter):

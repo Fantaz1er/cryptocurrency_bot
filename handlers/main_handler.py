@@ -9,10 +9,11 @@ from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.markdown import hbold
 
-from db.userbase import *
-from handlers.commands import *
-from markups.markup import start_kb
-from scripts.notifications import *
+from cryptocurrency_bot.db.userbase import *
+from cryptocurrency_bot.handlers.commands import *
+from cryptocurrency_bot.markups.markup import start_kb
+from cryptocurrency_bot.scripts.notifications import *
+
 
 router = Router(name="main")
 

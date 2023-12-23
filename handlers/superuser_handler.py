@@ -4,8 +4,8 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from filters.superuser import IsSuperUser
-from language.exec import get_admin_answers
+from cryptocurrency_bot.filters.superuser import IsSuperUser  # type: ignore
+from cryptocurrency_bot.language.exec import get_admin_answers  # type: ignore
 
 superuser_router = Router(name="superuser_router")
 
